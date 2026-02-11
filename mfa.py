@@ -61,7 +61,10 @@ def verify_totp(token, secret, window=1):
     current_time = int(time.time())
 
     for w in range(-window, window + 1):
-        if get_totp_token(secret, current_time + w * 30) == token:
+        if hmac.compare_digest(
+            get_totp_token(secret, current_time + w * 30),
+            token
+        ):
             return True
 
     return False
