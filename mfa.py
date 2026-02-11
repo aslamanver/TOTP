@@ -67,30 +67,6 @@ def verify_totp(token, secret, window=1):
     return False
 
 # ----------------------------
-# Generate TOTP (Optional)
-# ----------------------------
-def generate_totp(secret_base32, period=30, digits=6, for_time=None):
-
-    if for_time is None:
-        for_time = int(time.time())
-
-    key = base64.b32decode(secret_base32, casefold=True)
-    counter = int(for_time // period)
-    counter_bytes = counter.to_bytes(8, "big")
-    hmac_hash = hmac.new(key, counter_bytes, hashlib.sha1).digest()
-    offset = hmac_hash[-1] & 0x0F
-    
-    truncated_hash = (
-        ((hmac_hash[offset] & 0x7F) << 24) |
-        ((hmac_hash[offset + 1] & 0xFF) << 16) |
-        ((hmac_hash[offset + 2] & 0xFF) << 8) |
-        (hmac_hash[offset + 3] & 0xFF)
-    )
-
-    otp = truncated_hash % (10 ** digits)
-    return str(otp).zfill(digits)
-
-# ----------------------------
 # MAIN
 # ----------------------------
 if __name__ == "__main__":
@@ -112,7 +88,7 @@ if __name__ == "__main__":
 
     input("\nPress Enter when ready to verify...")
 
-    totp = generate_totp(secret)
+    totp = get_totp_token(secret)
     print("TOTP Token in Google Authenticator App:", totp)
 
     token = input("Enter 6-digit token: ").strip()
