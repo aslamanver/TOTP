@@ -4,6 +4,8 @@ Pure Python implementation of TOTP (Time-Based One-Time Password) compatible wit
 
 This script demonstrates how Google Authenticator works on the server side by implementing RFC 6238 manually.
 
+[![asciicast](mfa.gif)](https://asciinema.org/a/23YA1AGm9Yj1qZOk)
+
 ## Features
 
 - ✅ Generate secure random TOTP secrets
