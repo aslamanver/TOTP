@@ -27,46 +27,47 @@ def generate_otpauth_url(secret, account_name, issuer_name):
     params = {
         'secret': secret.replace('=', ''),
         'issuer': issuer_name,
-        'algorithm': 'SHA1',
+        'algorithm': 'SHA512',  # SHA512 algorithm
         'digits': 6,
         'period': 30
     }
     return f"otpauth://totp/{urllib.parse.quote(issuer_name)}:{urllib.parse.quote(account_name)}?{urllib.parse.urlencode(params)}"
 
 # ----------------------------
-# Generate TOTP
+# Generate TOTP using SHA512
 # ----------------------------
-def get_totp_token(secret, for_time=None):
+def generate_totp_sha512(secret_base32, period=30, digits=6, for_time=None):
     if for_time is None:
         for_time = int(time.time())
 
-    key = base64.b32decode(secret, casefold=True)
-    time_counter = int(for_time / 30)
-    msg = time_counter.to_bytes(8, 'big')
+    key = base64.b32decode(secret_base32, casefold=True)
+    counter = for_time // period
+    counter_bytes = counter.to_bytes(8, "big")
 
-    h = hmac.new(key, msg, hashlib.sha1).digest()
-    offset = h[-1] & 0x0F
+    hmac_hash = hmac.new(key, counter_bytes, hashlib.sha512).digest()
+    offset = hmac_hash[-1] & 0x0F
 
-    code = ((h[offset] & 0x7f) << 24 |
-            (h[offset+1] & 0xff) << 16 |
-            (h[offset+2] & 0xff) << 8 |
-            (h[offset+3] & 0xff))
+    truncated_hash = (
+        ((hmac_hash[offset] & 0x7F) << 24) |
+        ((hmac_hash[offset + 1] & 0xFF) << 16) |
+        ((hmac_hash[offset + 2] & 0xFF) << 8) |
+        (hmac_hash[offset + 3] & 0xFF)
+    )
 
-    return str(code % 10**6).zfill(6)
+    otp = truncated_hash % (10 ** digits)
+    return str(otp).zfill(digits)
 
 # ----------------------------
-# Verify TOTP
+# Verify TOTP token
 # ----------------------------
 def verify_totp(token, secret, window=1):
     current_time = int(time.time())
-
     for w in range(-window, window + 1):
         if hmac.compare_digest(
-            get_totp_token(secret, current_time + w * 30),
+            generate_totp_sha512(secret, for_time=current_time + w * 30),
             token
         ):
             return True
-
     return False
 
 # ----------------------------
@@ -86,16 +87,15 @@ if __name__ == "__main__":
     print("\nTOTP Secret:", secret)
 
     url = generate_otpauth_url(secret, "user@example.com", "MyApp")
-    print("\nScan this in Google Authenticator:")
+    print("\nScan this in a SHA512-compatible Authenticator app (Authy, FreeOTP, 1Password, etc.):")
     print(url)
 
     input("\nPress Enter when ready to verify...")
 
-    # Demo only
-    totp = get_totp_token(secret)
-    print("TOTP Token in Google Authenticator App:", totp)
+    totp = generate_totp_sha512(secret)
+    print("Current TOTP Token:", totp)
 
-    token = input("Enter 6-digit token: ").strip().replace(" ", "")
+    token = input("Enter 6-digit token from your app: ").strip().replace(" ", "")
 
     if verify_totp(token, secret):
         print("✅ Token is valid!")
