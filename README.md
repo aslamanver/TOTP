@@ -1,6 +1,6 @@
 # Pure Python TOTP (Google Authenticator Compatible)
 
-Pure Python implementation of TOTP (Time-Based One-Time Password) compatible with Google Authenticator built without any third-party libraries.
+Pure Python implementation of TOTP (Time-Based One-Time Password) using **SHA512**, compatible with SHA512-capable authenticator apps like Authy, FreeOTP, and 1Password — built entirely without third-party libraries.
 
 This script demonstrates how Google Authenticator works on the server side by implementing RFC 6238 manually.
 
@@ -10,7 +10,7 @@ This script demonstrates how Google Authenticator works on the server side by im
 - ✅ Accept custom plain-text secrets (auto-converted to Base32)
 - ✅ Generate `otpauth://` URL compatible with Google Authenticator
 - ✅ Manual TOTP generation using:
-  - HMAC-SHA1
+  - HMAC-SHA512
   - 30-second time step
   - Dynamic truncation
 - ✅ Token verification with configurable clock drift window
@@ -32,7 +32,7 @@ This script demonstrates how Google Authenticator works on the server side by im
 
 ## Technical Details
 
-- Algorithm: HMAC-SHA1
+- Algorithm: HMAC-SHA512
 - Digits: 6
 - Period: 30 seconds
 - Clock tolerance: ±1 time window (configurable)
