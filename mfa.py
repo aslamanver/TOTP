@@ -91,10 +91,11 @@ if __name__ == "__main__":
 
     input("\nPress Enter when ready to verify...")
 
+    # Demo only
     totp = get_totp_token(secret)
     print("TOTP Token in Google Authenticator App:", totp)
 
-    token = input("Enter 6-digit token: ").strip()
+    token = input("Enter 6-digit token: ").strip().replace(" ", "")
 
     if verify_totp(token, secret):
         print("✅ Token is valid!")
