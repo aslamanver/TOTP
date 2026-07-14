@@ -9,7 +9,6 @@ DATA = [
   "otpauth-migration://offline?data=CjwKFFiBlXBIMgFFKmDxWXH00ZXoCrAWEhFhc2xhbUBvdXRsb29rLmNvbRoNVGVzdCBJc3N1ZXIgMSAAKAEKPAoUouJctQ185gRyk8TLiMT4HJuD8N0SEWFzbGFtQG91dGxvb2suY29tGg1UZXN0IElzc3VlciAyIAAoAQgB"
 ]
 
-
 # -----------------------------
 # Extract base64 data from URL
 # -----------------------------
@@ -17,7 +16,6 @@ def extract_data(url):
     parsed = urlparse(url)
     query = parse_qs(parsed.query)
     return query["data"][0]
-
 
 # -----------------------------
 # Minimal protobuf parser
@@ -34,12 +32,10 @@ def read_varint(buf, i):
         shift += 7
     return result, i
 
-
 def read_length_delimited(buf, i):
     length, i = read_varint(buf, i)
     val = buf[i:i + length]
     return val, i + length
-
 
 def parse_payload(buf):
     i = 0
@@ -62,7 +58,6 @@ def parse_payload(buf):
             _, i = read_varint(buf, i)
 
     return results
-
 
 def parse_otp(buf):
     i = 0
@@ -101,7 +96,6 @@ def parse_otp(buf):
 
     return otp
 
-
 # -----------------------------
 # TOTP generator
 # -----------------------------
@@ -118,7 +112,6 @@ def generate_totp(secret, digits=6, interval=30):
     code = (int.from_bytes(h[o:o + 4], 'big') & 0x7fffffff) % (10 ** digits)
 
     return str(code).zfill(digits), remaining
-
 
 # -----------------------------
 # Run
