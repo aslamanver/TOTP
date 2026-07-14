@@ -2,7 +2,6 @@ import base64
 import urllib.parse
 import os
 
-
 # -----------------------------
 # Protobuf writer (minimal)
 # -----------------------------
@@ -18,15 +17,12 @@ def write_varint(value):
             break
     return bytes(out)
 
-
 def write_field(tag, value):
     return bytes([tag]) + value
-
 
 def write_length_delimited(field_number, data):
     tag = (field_number << 3) | 2
     return write_field(tag, write_varint(len(data)) + data)
-
 
 def encode_otp(name, issuer, secret, algo=0):
     msg = bytearray()
@@ -47,7 +43,6 @@ def encode_otp(name, issuer, secret, algo=0):
     msg += write_field(40, write_varint(1))
 
     return bytes(msg)
-
 
 def encode_payload(accounts):
     """
@@ -72,7 +67,6 @@ def encode_payload(accounts):
 
     return bytes(payload)
 
-
 # -----------------------------
 # Final exporter
 # -----------------------------
@@ -81,7 +75,6 @@ def to_migration_url(accounts):
     b64 = base64.b64encode(raw).decode()
 
     return f"otpauth-migration://offline?data={urllib.parse.quote(b64)}"
-
 
 # -----------------------------
 # Example usage
